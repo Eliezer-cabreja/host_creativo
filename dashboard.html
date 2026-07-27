@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creativo RP - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Orbitron',sans-serif;background:#0b0e1a;color:#fff;display:flex;min-height:100vh;background-image:url('imagen/images.png');background-size:cover;background-position:center;background-attachment:fixed;position:relative}
+        body::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:0}
+        .sidebar{width:260px;background:rgba(20,20,30,.95);backdrop-filter:blur(10px);height:100vh;color:#fff;position:fixed;overflow-y:auto;z-index:100;transition:transform .3s ease;border-right:1px solid rgba(255,20,147,.3);display:flex;flex-direction:column}
+        .sidebar .logo{padding:25px 20px;text-align:center;font-size:20px;font-weight:900;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,20,147,.2);display:flex;align-items:center;justify-content:center;gap:12px;flex-shrink:0}
+        .sidebar .logo img{width:50px;height:50px;object-fit:contain;border-radius:8px;filter:drop-shadow(0 0 15px #ff1493)}
+        .sidebar .logo span{background:linear-gradient(135deg,#ff69b4,#ff1493);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;font-size:18px}
+        .sidebar ul{list-style:none;padding:15px 10px;flex:1}
+        .sidebar li{padding:14px 18px;margin-bottom:6px;cursor:pointer;border-radius:12px;transition:.3s;display:flex;align-items:center;gap:14px;color:#a0a0b8;border:1px solid transparent}
+        .sidebar li i{width:22px;text-align:center;font-size:16px}
+        .sidebar li:hover{background:rgba(255,20,147,.15);color:#ff69b4;border-color:rgba(255,20,147,.3);transform:translateX(4px)}
+        .sidebar li.active-menu{background:rgba(255,20,147,.2);border-color:#ff1493;color:#ff1493;box-shadow:0 0 20px rgba(255,20,147,.15)}
+        .sidebar li span{font-size:13px;letter-spacing:1px}
+        .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:99}
+        .sidebar-overlay.active{display:block}
+        .main{margin-left:260px;width:100%;min-height:100vh;position:relative;z-index:1;transition:margin-left .3s ease;display:flex;flex-direction:column}
+        .topbar{height:70px;background:rgba(20,20,30,.92);backdrop-filter:blur(8px);display:flex;justify-content:space-between;align-items:center;padding:0 30px;border-bottom:1px solid rgba(255,20,147,.2);box-shadow:0 4px 30px rgba(0,0,0,.3);flex-shrink:0;position:sticky;top:0;z-index:10}
+        .topbar-left{display:flex;align-items:center;gap:15px}
+        .menu-toggle{display:none;background:0 0;border:none;color:#ff69b4;font-size:24px;cursor:pointer;padding:5px 10px;transition:.3s}
+        .menu-toggle:hover{color:#ff1493;transform:scale(1.1)}
+        .topbar-left h2{font-size:18px;color:#e0e0f0;letter-spacing:2px}
+        .topbar-left h2 i{color:#ff1493;margin-right:10px}
+        .profile-container{position:relative;cursor:pointer}
+        .profile-avatar{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#ff69b4,#ff1493);display:flex;align-items:center;justify-content:center;color:#0b0e1a;font-weight:900;font-size:18px;transition:.3s;border:2px solid transparent;box-shadow:0 0 20px rgba(255,20,147,.3)}
+        .profile-avatar:hover{border-color:#ff69b4;transform:scale(1.05);box-shadow:0 0 30px rgba(255,20,147,.5)}
+        .profile-dropdown{position:absolute;top:55px;right:0;background:rgba(20,20,30,.98);backdrop-filter:blur(10px);border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);min-width:220px;padding:10px 0;display:none;z-index:1000;border:1px solid rgba(255,20,147,.2);animation:slideDown .3s ease}
+        .profile-dropdown.active{display:block}
+        .profile-dropdown .dropdown-header{padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+        .profile-dropdown .dropdown-header .user-name{font-weight:700;color:#ff69b4;font-size:15px}
+        .profile-dropdown .dropdown-header .user-email{color:#8892b0;font-size:12px;margin-top:2px}
+        .profile-dropdown .dropdown-item{padding:10px 20px;display:flex;align-items:center;gap:12px;color:#c0c0d0;transition:.2s;cursor:pointer;border:none;background:0 0;width:100%;text-align:left;font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:1px}
+        .profile-dropdown .dropdown-item:hover{background:rgba(255,20,147,.1);color:#ff69b4}
+        .profile-dropdown .dropdown-item i{width:18px;color:#ff1493}
+        .profile-dropdown .dropdown-item.danger{color:#ff6b6b}
+        .profile-dropdown .dropdown-item.danger i{color:#ff6b6b}
+        .profile-dropdown .dropdown-divider{height:1px;background:rgba(255,255,255,.05);margin:5px 0}
+        @keyframes slideDown{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
+        .page-section{display:none;padding:25px 30px 30px;flex:1}
+        .page-section.active{display:block}
+        .dashboard-grid{display:flex;gap:25px;height:calc(100% - 20px);min-height:500px}
+        .terminal-panel{flex:1;background:rgba(10,10,18,.85);backdrop-filter:blur(6px);border-radius:16px;border:1px solid rgba(255,20,147,.2);padding:15px;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.3);min-width:0}
+        .terminal-panel .terminal-header{display:flex;justify-content:space-between;color:#8892b0;font-size:11px;letter-spacing:1px;margin-bottom:10px;padding:0 4px}
+        .terminal-panel .terminal-body{flex:1;background:rgba(0,0,0,.5);border-radius:10px;padding:14px 18px;font-family:'Courier New',monospace;font-size:13px;color:#c0d0e0;overflow-y:auto;white-space:pre-wrap;word-wrap:break-word;line-height:1.7;min-height:250px;max-height:450px;border:1px solid rgba(255,255,255,.03);margin-bottom:10px}
+        .terminal-body .log-line{margin-bottom:2px;font-family:'Courier New',monospace;color:#c0d0e0}
+        .terminal-input-area{display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.4);border-radius:10px;padding:8px 12px;border:1px solid rgba(255,255,255,.06)}
+        .terminal-input-area .prompt{color:#ff69b4;font-weight:700;font-size:14px;white-space:nowrap;font-family:'Courier New',monospace}
+        .terminal-input-area input{flex:1;background:0 0;border:none;color:#c0d0e0;font-family:'Courier New',monospace;font-size:14px;outline:0;padding:6px 0}
+        .terminal-input-area input::placeholder{color:#4a5270}
+        .terminal-input-area .send-btn{background:0 0;border:none;color:#ff1493;font-size:18px;cursor:pointer;transition:.3s;padding:4px 8px}
+        .terminal-input-area .send-btn:hover{color:#ff69b4;transform:scale(1.1)}
+        .terminal-body::-webkit-scrollbar{width:6px}
+        .terminal-body::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:10px}
+        .terminal-body::-webkit-scrollbar-thumb{background:#ff1493;border-radius:10px}
+
+        /* ===== BOTONES REDISEÑADOS (sin indicador de estado) ===== */
+        .controls-panel{width:260px;flex-shrink:0;background:rgba(20,20,30,.85);backdrop-filter:blur(6px);border-radius:16px;border:1px solid rgba(255,20,147,.2);padding:20px 18px;display:flex;flex-direction:column;gap:18px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+        .controls-panel .control-title{font-size:12px;color:#8892b0;letter-spacing:2px;text-align:center;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:12px;margin-bottom:6px}
+
+        .control-btn{width:100%;padding:12px 16px;border:none;border-radius:10px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;transition:.3s;text-transform:uppercase;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+        .control-btn i{font-size:16px}
+        .control-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+        .control-btn:active:not(:disabled){transform:translateY(0)}
+        .control-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+        .control-btn.start{background:#22c55e}
+        .control-btn.start:hover:not(:disabled){background:#16a34a}
+        .control-btn.stop{background:#ef4444}
+        .control-btn.stop:hover:not(:disabled){background:#dc2626}
+        .control-btn.restart{background:#f59e0b}
+        .control-btn.restart:hover:not(:disabled){background:#d97706}
+
+        /* ============================================================ */
+        .placeholder-page{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;color:#8892b0;text-align:center}
+        .placeholder-page i{font-size:80px;color:#ff1493;margin-bottom:20px;opacity:.3}
+        .placeholder-page h2{font-size:24px;color:#e0e0f0;margin-bottom:10px}
+        .placeholder-page p{font-size:14px;color:#6a6a80}
+        @media(max-width:768px){.sidebar{transform:translateX(-100%);width:280px}.sidebar.open{transform:translateX(0)}.menu-toggle{display:block}.main{margin-left:0}.topbar{padding:0 15px}.topbar-left h2{font-size:15px}.dashboard-grid{flex-direction:column-reverse;height:auto;min-height:auto}.controls-panel{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center;padding:18px 15px;gap:12px}.controls-panel .control-title{width:100%;margin-bottom:4px}.control-btn{flex:1;min-width:100px;padding:10px 14px;font-size:12px}.terminal-panel .terminal-body{min-height:180px;max-height:280px;font-size:12px;padding:12px 14px}.page-section{padding:15px}.profile-dropdown{right:-10px;min-width:200px}}
+        @media(max-width:480px){.topbar-left h2{font-size:13px}.topbar-left h2 i{display:none}.profile-avatar{width:38px;height:38px;font-size:15px}.control-btn{font-size:11px;padding:8px 12px;min-width:80px}.terminal-panel .terminal-body{min-height:140px;max-height:200px;font-size:11px;padding:10px 12px}.terminal-input-area input{font-size:12px}.sidebar .logo span{font-size:16px}.sidebar li{padding:12px 16px;font-size:12px}.sidebar li i{font-size:14px;width:20px}.sidebar li span{font-size:12px}}
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><img src="imagen/logo.png" alt="Logo"><span>Creativo RP</span></div>
+        <ul>
+            <li class="active-menu" data-page="dashboard"><i class="fa-solid fa-gauge-high"></i> <span>Dashboard</span></li>
+            <li data-page="resources"><i class="fa-solid fa-cubes"></i> <span>Resources</span></li>
+            <li data-page="logs"><i class="fa-solid fa-terminal"></i> <span>Logs</span></li>
+            <li data-page="configuracion"><i class="fa-solid fa-gear"></i> <span>Configuración</span></li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+                <h2 id="pageTitle"><i class="fa-solid fa-gauge-high"></i> Dashboard</h2>
+            </div>
+            <div class="profile-container">
+                <div class="profile-avatar" id="profileBtn"><span id="avatarInicial">A</span></div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-header"><div class="user-name" id="dropdownUserName">Admin</div><div class="user-email">admin@creativorp.com</div></div>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item danger" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+        <div id="dashboard" class="page-section active">
+            <div class="dashboard-grid">
+                <div class="terminal-panel">
+                    <div class="terminal-header"><span><i class="fa-solid fa-terminal"></i> CONSOLA</span></div>
+                    <div class="terminal-body" id="terminalOutput"></div>
+                    <div class="terminal-input-area">
+                        <span class="prompt">></span>
+                        <input type="text" id="cmdInput" placeholder="Escribe un comando..." autofocus>
+                        <button class="send-btn" id="sendCmdBtn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+                <div class="controls-panel">
+                    <div class="control-title">⚙️ CONTROL</div>
+                    <!-- SIN INDICADOR DE ESTADO -->
+                    <button class="control-btn start" id="btnStart" onclick="controlServer('start')"><i class="fa-solid fa-play"></i> ENCENDER</button>
+                    <button class="control-btn stop" id="btnStop" onclick="controlServer('stop')"><i class="fa-solid fa-stop"></i> APAGAR</button>
+                    <button class="control-btn restart" id="btnRestart" onclick="controlServer('restart')"><i class="fa-solid fa-rotate"></i> REINICIAR</button>
+                </div>
+            </div>
+        </div>
+        <div id="resources" class="page-section"><div class="placeholder-page"><i class="fa-solid fa-cubes"></i><h2>Resources</h2><p>Próximamente...</p></div></div>
+        <div id="logs" class="page-section"><div class="placeholder-page"><i class="fa-solid fa-file-lines"></i><h2>Logs</h2><p>Próximamente...</p></div></div>
+        <div id="configuracion" class="page-section"><div class="placeholder-page"><i class="fa-solid fa-gear"></i><h2>Configuración</h2><p>Próximamente...</p></div></div>
+    </div>
+    <script>
+        const API_BASE = 'http://161.97.133.24:8019/api/v1';
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        });
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            this.classList.remove('active');
+        });
+
+        // Navegación
+        document.querySelectorAll('.sidebar li[data-page]').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar li[data-page]').forEach(i => i.classList.remove('active-menu'));
+                this.classList.add('active-menu');
+                document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(this.dataset.page).classList.add('active');
+                const names = { dashboard: 'Dashboard', resources: 'Resources', logs: 'Logs', configuracion: 'Configuración' };
+                const icons = { dashboard: 'fa-gauge-high', resources: 'fa-cubes', logs: 'fa-terminal', configuracion: 'fa-gear' };
+                document.getElementById('pageTitle').innerHTML = `<i class="fa-solid ${icons[this.dataset.page]}"></i> ${names[this.dataset.page]}`;
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('sidebarOverlay').classList.remove('active');
+                }
+            });
+        });
+
+        // Perfil
+        document.getElementById('profileBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('profileDropdown').classList.toggle('active');
+        });
+        document.addEventListener('click', function(e) {
+            const btn = document.getElementById('profileBtn');
+            const drop = document.getElementById('profileDropdown');
+            if (!btn.contains(e.target) && !drop.contains(e.target)) drop.classList.remove('active');
+        });
+
+        const user = localStorage.getItem('user') || 'Admin';
+        document.getElementById('avatarInicial').textContent = user.charAt(0).toUpperCase();
+        document.getElementById('dropdownUserName').textContent = user;
+
+        document.getElementById('btnLogout').addEventListener('click', function() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+
+        // Terminal y estado
+        const terminal = document.getElementById('terminalOutput');
+        const cmdInput = document.getElementById('cmdInput');
+        const sendBtn = document.getElementById('sendCmdBtn');
+        let isServerOnline = false;
+
+        function updateServerStatus(online) {
+            isServerOnline = online;
+            document.getElementById('btnStart').disabled = online;
+            document.getElementById('btnStop').disabled = !online;
+            document.getElementById('btnRestart').disabled = !online;
+        }
+
+        async function fetchStatus() {
+            try {
+                const response = await fetch(API_BASE + '/status');
+                const data = await response.json();
+                if (data.success !== undefined) {
+                    updateServerStatus(data.online);
+                }
+            } catch (e) {
+                console.error('Error al obtener estado:', e);
+            }
+        }
+
+        async function fetchConsole() {
+            if (!isServerOnline) {
+                return;
+            }
+            try {
+                const response = await fetch(API_BASE + '/logs?lines=200');
+                const data = await response.json();
+                if (data.success && data.logs && data.logs.length > 0) {
+                    // Si la consola está vacía, mostrar logs
+                    if (terminal.children.length === 0) {
+                        terminal.innerHTML = '';
+                        data.logs.forEach(line => {
+                            if (line.trim()) {
+                                const div = document.createElement('div');
+                                div.className = 'log-line';
+                                div.textContent = line;
+                                terminal.appendChild(div);
+                            }
+                        });
+                        terminal.scrollTop = terminal.scrollHeight;
+                    } else {
+                        // Si ya hay líneas, solo agregar nuevas (evitar duplicados)
+                        const currentLines = terminal.children.length;
+                        const newLines = data.logs;
+                        if (newLines.length > currentLines) {
+                            for (let i = currentLines; i < newLines.length; i++) {
+                                if (newLines[i].trim()) {
+                                    const div = document.createElement('div');
+                                    div.className = 'log-line';
+                                    div.textContent = newLines[i];
+                                    terminal.appendChild(div);
+                                }
+                            }
+                            terminal.scrollTop = terminal.scrollHeight;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error al obtener logs:', e);
+            }
+        }
+
+        async function sendCommand() {
+            const cmd = cmdInput.value.trim();
+            if (!cmd) return;
+            if (!isServerOnline) {
+                cmdInput.value = '';
+                return;
+            }
+            cmdInput.value = '';
+            try {
+                await fetch(API_BASE + '/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                await fetchConsole();
+            } catch (e) {
+                console.error('Error al enviar comando:', e);
+            }
+            cmdInput.focus();
+        }
+
+        sendBtn.addEventListener('click', sendCommand);
+        cmdInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendCommand(); } });
+
+        async function controlServer(action) {
+            const btns = document.querySelectorAll('.control-btn');
+            btns.forEach(b => b.disabled = true);
+            try {
+                const response = await fetch(API_BASE + '/' + action, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    await fetchStatus();
+                    await fetchConsole();
+                }
+            } catch (e) {
+                console.error('Error en controlServer:', e);
+            }
+            btns.forEach(b => b.disabled = false);
+            updateServerStatus(isServerOnline);
+        }
+
+        window.controlServer = controlServer;
+
+        // Iniciar
+        fetchStatus();
+        setInterval(async () => {
+            await fetchStatus();
+            if (isServerOnline) {
+                await fetchConsole();
+            }
+        }, 2000);
+
+        setTimeout(() => {
+            if (isServerOnline) {
+                fetchConsole();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
